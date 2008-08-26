@@ -3,9 +3,9 @@
 #include "tuitest.h"
 #include "rote/rote.h"
 
-static int getout = 0;
-static RoteTerm * rt = NULL;
-static WINDOW * term_win = NULL;
+int getout = 0;
+RoteTerm * rt = NULL;
+WINDOW * term_win = NULL;
 
 static void sigchld(int signo) { 
 	getout = 1; 
@@ -52,23 +52,3 @@ void tt_run(const char * cmdline) {
 	rote_vt_forkpty(rt, cmdline);
 }
 
-void tt_record() {
-	int ch;
-	struct timeval t1, t2;
-
-	gettimeofday(&t1, NULL);
-	while (!getout) {
-		rote_vt_draw(rt, term_win, 1, 1, NULL);
-		wrefresh(term_win);
-
-		ch = getch();
-		if (ch != ERR) {
-			gettimeofday(&t2, NULL);
-			tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
-			tt_record_keypress(ch);
-
-			rote_vt_keypress(rt, ch);
-			gettimeofday(&t1, NULL);
-		}
-	}
-}

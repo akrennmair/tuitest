@@ -24,6 +24,8 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
+	tt_record_run(cmd);
+
 	tt_run(cmd);
 
 	tt_record();

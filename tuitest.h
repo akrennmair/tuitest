@@ -12,6 +12,7 @@ int tt_open_script(const char * file);
 void tt_close_script();
 void tt_record_wait(unsigned int msec);
 void tt_record_keypress(int key);
+void tt_record_run(const char * cmd);
 
 void tt_record();
 
