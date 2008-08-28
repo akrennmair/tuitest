@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <string.h>
 #include "rote/rote.h"
 
 extern RoteTerm * rt;
@@ -21,4 +22,18 @@ void tt_wait(unsigned int msec) {
 	usleep(msec * 1000);
 	rote_vt_draw(rt, term_win, 1, 1, NULL);
 	wrefresh(term_win);
+}
+
+char * tt_getrow(unsigned int row) {
+	if (row < 25) {
+		char buf[81];
+		unsigned int i;
+		RoteCell* p = rt->cells[row];
+		for (i=0;i<80;i++) {
+			buf[i] = p[i].ch;
+		}
+		buf[80] = '\0';
+		return strdup(buf);
+	}
+	return NULL;
 }

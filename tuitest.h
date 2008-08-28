@@ -7,6 +7,7 @@ void tt_close();
 void tt_run(const char * cmdline);
 void tt_keypress(int key);
 void tt_wait(unsigned int msec);
+char * tt_getrow(unsigned int row);
 
 int tt_open_script(const char * file);
 void tt_close_script();
