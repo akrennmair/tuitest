@@ -11,16 +11,23 @@ module Tuitest
 		def initialize(logfile = nil)
 			@verifications = [ ]
 			@logfile = logfile
+			@errcount = 0
+			@warncount = 0
 		end
 
 		def expect(row, col, expected_text, failmethod = :hard)
 			found_text = Tuitest.gettext(row, col, expected_text.length)
 			if found_text != expected_text then
-				@verifications << [ :error, "On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'" ]
-				if failmethod == :hard then
+				case failmethod
+				when :hard
+					@verifications << [ :error, "On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'" ]
+					@errcount += 1
 					Tuitest.close
 					finish
 					Kernel.exit(1)
+				when :soft
+					@verifications << [ :warn, "On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'" ]
+					@warncount += 1
 				end
 			else
 				@verifications << [ :ok, "On (#{row},#{col}), found `#{found_text}' as expected." ]
@@ -28,8 +35,11 @@ module Tuitest
 		end
 
 		def finish
-			write_log_to_stdout
 			write_log_to_file(@logfile)
+			if @errcount > 0 or @warncount > 0 then
+				write_log_to_stdout
+			end
+			puts "Test run finished (#{@errcount} errors, #{@warncount} warnings)."
 		end
 
 		private

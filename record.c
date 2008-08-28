@@ -12,9 +12,20 @@ unsigned int autogen = 1;
 
 FILE * f = NULL;
 
+static void escape_quotes(char * target, const char * src) {
+	for (;*src;src++,target++) {
+		if (*src == '"')
+			*target++ = '\\';
+		*target = *src;
+	}
+	*target = '\0';
+}
+
 int tt_open_script(const char * file) {
 	char logfilename[1024];
+	char escaped_logfile[2048];
 	snprintf(logfilename, sizeof(logfilename), "%s.log", file);
+	escape_quotes(escaped_logfile, logfilename);
 	f = fopen(file, "w+");
 	if (!f) {
 		return 0;
@@ -23,7 +34,7 @@ int tt_open_script(const char * file) {
 	fprintf(f, "# auto-generated tuitest script\n");
 	fprintf(f, "require 'tuitest'\n\n");
 	fprintf(f, "Tuitest.init\n");
-	fprintf(f, "verifier = Tuitest::Verifier.new(\"%s\")\n\n", logfilename);
+	fprintf(f, "verifier = Tuitest::Verifier.new(\"%s\")\n\n", escaped_logfile);
 	return 1;
 }
 
@@ -59,6 +70,7 @@ static void tt_take_snapshot(char screen[TERM_ROWS][TERM_COLS]) {
 static void tt_generate_verification(unsigned int row, char oldrow[TERM_COLS], char newrow[TERM_COLS]) {
 	unsigned int i, j;
 	char * buf;
+	char * escbuf;
 	for (i=0;i<TERM_COLS;i++) {
 		if (oldrow[i] != newrow[i])
 			break;
@@ -70,7 +82,11 @@ static void tt_generate_verification(unsigned int row, char oldrow[TERM_COLS], c
 	buf = malloc(j-i+1);
 	memcpy(buf, newrow+i, j-i);
 	buf[j-i] = '\0';
-	fprintf(f, "verifier.expect(%u, %u, \"%s\")\n", row, i, buf);
+	escbuf = malloc(strlen(buf)*2 + 1);
+	escape_quotes(escbuf, buf);
+	free(buf);
+	fprintf(f, "verifier.expect(%u, %u, \"%s\")\n", row, i, escbuf);
+	free(escbuf);
 }
 
 static void tt_generate_verifications(char oldscreen[TERM_ROWS][TERM_COLS], char newscreen[TERM_ROWS][TERM_COLS]) {
@@ -121,5 +137,8 @@ void tt_record() {
 }
 
 void tt_record_run(const char * cmd) {
-	fprintf(f, "\nTuitest.run(\"%s\")\n\n", cmd);
+	char * esccmd = malloc(strlen(cmd)*2 + 1);
+	escape_quotes(esccmd, cmd);
+	fprintf(f, "\nTuitest.run(\"%s\")\n\n", esccmd);
+	free(esccmd);
 }

@@ -1,11 +1,14 @@
 #include <ncurses.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "tuitest.h"
 #include "rote/rote.h"
 
 int getout = 0;
 RoteTerm * rt = NULL;
 WINDOW * term_win = NULL;
+pid_t pid;
 
 static void sigchld(int signo) { 
 	getout = 1; 
@@ -43,12 +46,13 @@ void tt_init() {
 }
 
 void tt_close() {
+	waitpid(pid, NULL, 0);
 	rote_vt_destroy(rt);
 	rt = NULL;
 	endwin();
 }
 
 void tt_run(const char * cmdline) {
-	rote_vt_forkpty(rt, cmdline);
+	pid = rote_vt_forkpty(rt, cmdline);
 }
 
