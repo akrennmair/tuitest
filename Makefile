@@ -3,6 +3,9 @@ CFLAGS=-g -fPIC -Wall -Wextra
 LDFLAGS=
 LIBS=-lutil -lncurses
 
+DESTDIR=
+prefix=/usr/local
+
 ROTESRC=$(wildcard rote/*.c)
 RECORDSRC=tt-record.c lib.c record.c $(ROTESRC)
 RUBYMODSRC=lib.o replay.o $(ROTESRC)
@@ -20,13 +23,18 @@ $(TARGET): $(RECORDOBJS)
 
 $(RUBYMOD): $(RUBYMODOBJS)
 	cd swig && swig -ruby tuitest.i && ruby extconf.rb
-	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) -lncursesw -lutil"
+	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) -lncursesw -lutil"  DESTDIR=$(DESTDIR) prefix=$(prefix) sitedir=$(prefix)/lib/ruby
 
 %.o: %.c
 	$(CC) -o $@ $(CFLAGS) -c $<
 
+install:
+	mkdir -p $(DESTDIR)$(prefix)/bin
+	install -m 755 tt-record $(DESTDIR)$(prefix)/bin
+	$(MAKE) -C swig DESTDIR=$(DESTDIR) prefix=$(prefix) sitedir='$(DESTDIR)$(prefix)/lib/ruby' install
+
 clean:
-	$(RM) $(TARGET) $(RECORDOBJS) $(RUBYMOD) $(RUBYMODOBJS) swig/tuitest_wrap.c
 	$(MAKE) -C swig clean
+	$(RM) $(TARGET) $(RECORDOBJS) $(RUBYMOD) $(RUBYMODOBJS) swig/tuitest_wrap.c swig/Makefile
 
 .PHONY: clean all
