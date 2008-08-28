@@ -46,7 +46,7 @@ void tt_init() {
 }
 
 void tt_close() {
-	waitpid(pid, NULL, 0);
+	waitpid(pid, NULL, WNOHANG);
 	rote_vt_destroy(rt);
 	rt = NULL;
 	endwin();
