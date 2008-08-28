@@ -17,5 +17,7 @@ void tt_record_run(const char * cmd);
 
 void tt_record();
 
+#define TERM_COLS 80
+#define TERM_ROWS 25
 
 #endif

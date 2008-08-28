@@ -33,13 +33,13 @@ void tt_init() {
 	refresh();
 
 	/* create window in which the AUT will run */
-	term_win = newwin(27,82,1,1);
+	term_win = newwin(TERM_ROWS+2,TERM_COLS+2,1,1);
 	wattrset(term_win, COLOR_PAIR(7*8+7-0)); /* black over white */
 	wborder(term_win, 0, 0, 0, 0, 0, 0, 0, 0);
 	mvwprintw(term_win, 0, 27, "[ Application Under Test ]");
 	wrefresh(term_win);
 
-	rt = rote_vt_create(25,80);
+	rt = rote_vt_create(TERM_ROWS,TERM_COLS);
 }
 
 void tt_close() {
