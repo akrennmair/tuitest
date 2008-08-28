@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -fPIC
+CFLAGS=-g -fPIC -Wall -Wextra
 LDFLAGS=
 LIBS=-lutil -lncurses
 

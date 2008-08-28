@@ -1,6 +1,7 @@
 #include "tuitest.h"
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 void usage(char * argv0) {
 	fprintf(stderr, "%s: usage: %s <script> <command>\n\n", argv0, argv0);
@@ -32,4 +33,6 @@ int main(int argc, char * argv[]) {
 
 	tt_close_script();
 	tt_close();
+
+	return 0;
 }
