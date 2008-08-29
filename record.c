@@ -52,7 +52,7 @@ void tt_record_wait(unsigned int msec) {
 
 void tt_record_keypress(int key) {
 	if (key >= 0x20 && key <= 0x7E) {
-		fprintf(f, "Tuitest.keypress(\"%c\"[0])\n", key);
+		fprintf(f, "Tuitest.keypress(\"%s%c\"[0])\n", key == '"' ? "\\" : "", key);
 	} else {
 		fprintf(f, "Tuitest.keypress(%d)\n", key);
 	}
@@ -79,9 +79,9 @@ static void tt_generate_verification(unsigned int row, char oldrow[TERM_COLS], c
 		if (oldrow[j] != newrow[j])
 			break;
 	}
-	buf = malloc(j-i+1);
-	memcpy(buf, newrow+i, j-i);
-	buf[j-i] = '\0';
+	buf = malloc(j-i+2);
+	memcpy(buf, newrow+i, j-i+1);
+	buf[j-i+1] = '\0';
 	escbuf = malloc(strlen(buf)*2 + 1);
 	escape_quotes(escbuf, buf);
 	free(buf);
