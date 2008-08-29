@@ -106,7 +106,9 @@ void tt_record() {
 	struct timeval t1, t2;
 	char screen[TERM_ROWS][TERM_COLS];
 
+	tt_take_snapshot(screen);
 	gettimeofday(&t1, NULL);
+
 	while (!getout) {
 		rote_vt_draw(rt, term_win, 1, 1, NULL);
 		wrefresh(term_win);
@@ -125,6 +127,9 @@ void tt_record() {
 			/* then, take the snapshot and generate the verifications */
 			tt_take_snapshot(curscreen);
 			tt_generate_verifications(screen, curscreen);
+
+			/* after that, take a new snapshot, so that we can subsequently press F6 */
+			tt_take_snapshot(screen);
 		} else if (ch != ERR) {
 			gettimeofday(&t2, NULL);
 			tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
