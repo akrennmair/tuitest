@@ -23,7 +23,7 @@ $(TARGET): $(RECORDOBJS)
 
 $(RUBYMOD): $(RUBYMODOBJS)
 	cd swig && swig -ruby tuitest.i && ruby extconf.rb
-	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) -lncursesw -lutil"
+	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) -lncurses -lutil"
 
 %.o: %.c
 	$(CC) -o $@ $(CFLAGS) -c $<

@@ -6,6 +6,15 @@ module Tuitest
 		getrow(row)[col..col+len-1]
 	end
 
+	def Tuitest.wait_until_idle
+		state = newstate = nil
+		begin
+			state = take_snapshot
+			wait(1000)
+			newstate = take_snapshot
+		end while states_are_different(state, newstate)
+	end
+
 	class Verifier
 
 		def initialize(logfile = nil)
@@ -67,6 +76,25 @@ module Tuitest
 			end
 		end
 
+	end
+
+	private
+
+	def Tuitest.take_snapshot
+		rows = [ ]
+		0.upto(24) do |i|
+			rows << getrow(i)
+		end
+		rows
+	end
+
+	def Tuitest.states_are_different(oldstate, newstate)
+		0.upto(24) do |i|
+			if oldstate[i] != newstate[i] then
+				return true
+			end
+		end
+		false
 	end
 
 end
