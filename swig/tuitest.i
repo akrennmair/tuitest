@@ -13,9 +13,10 @@
 
 %}
 
+%feature("autodoc", "0");
+
 void tt_init();
 void tt_close();
-
 void tt_run(const char * cmdline);
 void tt_keypress(int key);
 void tt_wait(unsigned int msec);

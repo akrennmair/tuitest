@@ -2,21 +2,37 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 
 void usage(char * argv0) {
-	fprintf(stderr, "%s: usage: %s <script> <command>\n\n", argv0, argv0);
+	fprintf(stderr, "%s: usage: %s [-f] <script> <command>\n\n", argv0, argv0);
 }
 
 int main(int argc, char * argv[]) {
 	const char * script;
 	const char * cmd;
-	if (argc < 3) {
+	int c;
+
+	while ((c = getopt(argc, argv, "f")) != -1) {
+		switch (c) {
+			case 'f':
+				tt_set_fastmode(1);
+				break;
+			case '?':
+				fprintf(stderr, "Error: unknown option -%c\n", optopt);
+				usage(argv[0]);
+				return 1;
+		}
+	}
+
+	if ((argc - optind) < 2) {
 		usage(argv[0]);
 		return 1;
 	}
 
-	script = argv[1];
-	cmd = argv[2];
+	
+	script = argv[optind];
+	cmd = argv[optind+1];
 
 	tt_init();
 

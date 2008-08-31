@@ -9,8 +9,17 @@ extern int getout;
 extern RoteTerm * rt;
 extern WINDOW * term_win;
 unsigned int autogen = 1;
+int fastmode = 0;
 
 FILE * f = NULL;
+
+static void tt_record_wait_until_idle() {
+	fprintf(f, "\nTuitest.wait_until_idle\n");
+}
+
+void tt_set_fastmode(int fast) {
+	fastmode = fast;
+}
 
 static void escape_quotes(char * target, const char * src) {
 	for (;*src;src++,target++) {
@@ -40,6 +49,8 @@ int tt_open_script(const char * file) {
 
 
 void tt_close_script() {
+	if (fastmode)
+		tt_record_wait_until_idle();
 	fprintf(f, "\nTuitest.close\n");
 	fprintf(f, "verifier.finish\n\n");
 	fprintf(f, "# EOF\n");
@@ -91,13 +102,16 @@ static void tt_generate_verification(unsigned int row, char oldrow[TERM_COLS], c
 
 static void tt_generate_verifications(char oldscreen[TERM_ROWS][TERM_COLS], char newscreen[TERM_ROWS][TERM_COLS]) {
 	unsigned int i;
+	if (fastmode) {
+		tt_record_wait_until_idle();
+	}
 	fprintf(f, "# begin auto-generated verification #%u \n", autogen);
 	for (i=0;i<TERM_ROWS;i++) {
 		if (memcmp(oldscreen[i],newscreen[i], TERM_COLS)!=0) {
 			tt_generate_verification(i, oldscreen[i], newscreen[i]);
 		}
 	}
-	fprintf(f, "# end auto-generated verification #%u \n", autogen);
+	fprintf(f, "# end auto-generated verification #%u \n\n", autogen);
 	autogen++;
 }
 
@@ -121,7 +135,8 @@ void tt_record() {
 
 			/* first, record wait */
 			gettimeofday(&t2, NULL);
-			tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
+			if (!fastmode) 
+				tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
 			gettimeofday(&t1, NULL);
 
 			/* then, take the snapshot and generate the verifications */
@@ -132,7 +147,8 @@ void tt_record() {
 			tt_take_snapshot(screen);
 		} else if (ch != ERR) {
 			gettimeofday(&t2, NULL);
-			tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
+			if (!fastmode)
+				tt_record_wait((t2.tv_sec*1000 + t2.tv_usec/1000) - (t1.tv_sec*1000 + t1.tv_usec/1000));
 			tt_record_keypress(ch);
 
 			rote_vt_keypress(rt, ch);
@@ -145,5 +161,7 @@ void tt_record_run(const char * cmd) {
 	char * esccmd = malloc(strlen(cmd)*2 + 1);
 	escape_quotes(esccmd, cmd);
 	fprintf(f, "\nTuitest.run(\"%s\")\n\n", esccmd);
+	if (fastmode)
+		tt_record_wait_until_idle();
 	free(esccmd);
 }

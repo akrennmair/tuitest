@@ -16,6 +16,7 @@ void tt_record_keypress(int key);
 void tt_record_run(const char * cmd);
 
 void tt_record();
+void tt_set_fastmode(int fast);
 
 #define TERM_COLS 80
 #define TERM_ROWS 25
