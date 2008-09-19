@@ -10,6 +10,7 @@ extern RoteTerm * rt;
 extern WINDOW * term_win;
 unsigned int autogen = 1;
 int fastmode = 0;
+int xmloutput = 0;
 
 FILE * f = NULL;
 
@@ -19,6 +20,10 @@ static void tt_record_wait_until_idle() {
 
 void tt_set_fastmode(int fast) {
 	fastmode = fast;
+}
+
+void tt_set_xmloutput(int xml) {
+	xmloutput = xml;
 }
 
 static void escape_quotes(char * target, const char * src) {
@@ -32,9 +37,13 @@ static void escape_quotes(char * target, const char * src) {
 
 int tt_open_script(const char * file) {
 	char logfilename[1024];
+	char xmlfilename[1024];
 	char escaped_logfile[2048];
+	char escaped_xmlfile[2048];
 	snprintf(logfilename, sizeof(logfilename), "%s.log", file);
+	snprintf(xmlfilename, sizeof(xmlfilename), "RESULT-%s.xml", file);
 	escape_quotes(escaped_logfile, logfilename);
+	escape_quotes(escaped_xmlfile, xmlfilename);
 	f = fopen(file, "w+");
 	if (!f) {
 		return 0;
@@ -43,7 +52,11 @@ int tt_open_script(const char * file) {
 	fprintf(f, "# auto-generated tuitest script\n");
 	fprintf(f, "require 'tuitest'\n\n");
 	fprintf(f, "Tuitest.init\n");
-	fprintf(f, "verifier = Tuitest::Verifier.new(\"%s\")\n\n", escaped_logfile);
+	if (xmloutput) {
+		fprintf(f, "verifier = Tuitest::Verifier.new(\"%s\", \"%s\")\n\n", escaped_logfile, escaped_xmlfile);
+	} else {
+		fprintf(f, "verifier = Tuitest::Verifier.new(\"%s\")\n\n", escaped_logfile);
+	}
 	return 1;
 }
 

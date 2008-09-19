@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 void usage(char * argv0) {
-	fprintf(stderr, "%s: usage: %s [-f] <script> <command>\n\n", argv0, argv0);
+	fprintf(stderr, "%s: usage: %s [-f] [-x] <script> <command>\n\n", argv0, argv0);
 }
 
 int main(int argc, char * argv[]) {
@@ -13,10 +13,13 @@ int main(int argc, char * argv[]) {
 	const char * cmd;
 	int c;
 
-	while ((c = getopt(argc, argv, "f")) != -1) {
+	while ((c = getopt(argc, argv, "fx")) != -1) {
 		switch (c) {
 			case 'f':
 				tt_set_fastmode(1);
+				break;
+			case 'x':
+				tt_set_xmloutput(1);
 				break;
 			case '?':
 				fprintf(stderr, "Error: unknown option -%c\n", optopt);

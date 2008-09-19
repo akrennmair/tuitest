@@ -181,9 +181,10 @@ module Tuitest
 
 	class Verifier
 
-		def initialize(logfile = nil)
+		def initialize(logfile = nil, xmlfile = nil)
 			@verifications = [ ]
 			@logfile = logfile
+			@xmlfile = xmlfile
 			@errcount = 0
 			@warncount = 0
 		end
@@ -219,6 +220,7 @@ module Tuitest
 		# If there were warnings or errors, the complete log is printed to stdout.
 		def finish
 			write_log_to_file(@logfile)
+			write_xmlfile(@xmlfile)
 			if @errcount > 0 or @warncount > 0 then
 				write_log_to_stdout
 			end
@@ -233,6 +235,22 @@ module Tuitest
 
 		def write_log_to_file(file)
 			File.open(file,"w+") { |f| write_log_to_stream(f) }
+		end
+
+		def write_xmlfile(file)
+			File.open(file, "w+") do |f|
+				f << "<testsuite name='#{$0}' failures='#{@errcount}' errors='#{@warncount}' tests='#{@verifications.size}'>\n"
+				@verifications.each_index do |i|
+					f << "<testcase name='verification#{i+1}' time='0.0' classname='verification#{i+1}'>"
+					if @verifications[i][0] == :error then
+						f << "<failure><![CDATA[#{@verifications[i][1]}]]></failure>"
+					elsif @verifications[i][1] == :warn then
+						f << "<error><![CDATA[#{@verifications[i][1]}]]></error>"
+					end
+					f << "</testcase>\n"
+				end
+				f << "</testsuite>\n"
+			end
 		end
 
 		def write_log_to_stream(stream)
