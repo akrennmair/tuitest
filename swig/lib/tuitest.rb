@@ -133,6 +133,52 @@ module Tuitest
 		end while states_are_different(state, newstate)
 	end
 
+	# Tuitest.wait_until_screen_contains_text
+	#
+	# Waits until the regular expression rx matches any of the
+	# screen's lines. Optionally, a timeout (in milliseconds)
+	# can be specified. A return value of true indicates that
+	# the regular expression matched some text, while a return
+	# value of false indicates that the function ran into the
+	# specified timeout.
+	def Tuitest.wait_until_screen_contains_text(rx, timeout = 0)
+		begin
+			return true if Tuitest.screen_contains_text(rx)
+			wait(1000)
+			timeout -= 1000 if timeout > 0
+		end while timeout >= 0
+		false
+	end
+	
+	# Tuitest.screen_contains_text
+	#
+	# Returns true if the current screen contains a line that
+	# matches the specified regular expression.
+	def Tuitest.screen_contains_text(rx)
+		take_snapshot.each do |line|
+			return true if rx.matches(line)
+		end
+		false
+	end
+
+	# Tuitest.wait_until_expected_text
+	#
+	# Waits until the expected text appears on the specified
+	# screen coordinates. Optionally, a timeout can be specified.
+	# A return value of true indicates that
+	# the the expected text was found, while a return
+	# value of false indicates that the function ran into the
+	# specified timeout.
+	def Tuitest.wait_until_expected_text(row, col, expected_text, timeout = 0)
+		begin
+			return true if Tuitest.gettext(row, col, expected_text.length) == expected_text
+			wait(1000)
+			timeout -= 1000 if timeout > 0
+		end while timeout >= 0
+		false
+	end
+
+
 	class Verifier
 
 		def initialize(logfile = nil)
@@ -142,6 +188,20 @@ module Tuitest
 			@warncount = 0
 		end
 
+		def log_fail(errmsg, failmethod = :hard)
+			case failmethod
+			when :hard
+				@verifications << [ :error, errmsg ]
+				@errcount += 1
+				Tuitest.close
+				finish
+				Kernel.exit(1)
+			when :soft
+				@verifications << [ :warn, errmsg ]
+				@warncount += 1
+			end
+		end
+
 		# Verifies whether the expected text is on the expected coordinate.
 		# If failmethod equals :hard, then the execution will stop, and an
 		# error will be logged. If failmethod equals :soft, the execution
@@ -149,17 +209,7 @@ module Tuitest
 		def expect(row, col, expected_text, failmethod = :hard)
 			found_text = Tuitest.gettext(row, col, expected_text.length)
 			if found_text != expected_text then
-				case failmethod
-				when :hard
-					@verifications << [ :error, "On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'" ]
-					@errcount += 1
-					Tuitest.close
-					finish
-					Kernel.exit(1)
-				when :soft
-					@verifications << [ :warn, "On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'" ]
-					@warncount += 1
-				end
+				log_fail("On (#{row},#{col}), expected `#{expected_text}', but found `#{found_text}'", failmethod)
 			else
 				@verifications << [ :ok, "On (#{row},#{col}), found `#{found_text}' as expected." ]
 			end
