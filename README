@@ -12,6 +12,7 @@ To build and install tuitest, simply run "make" and "make install".
 Build Dependencies:
 - ncurses (tested with 5.6)
 - Ruby 1.8 development files
+- Swig (tested with 1.3.33)
 
 Documentation
 -------------
