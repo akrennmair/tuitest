@@ -106,6 +106,17 @@
 # verifications. Tuitest.wait_until_idle stops execution until there is
 # no screen change for more than 1 second. This is useful to give the
 # AUT time to "catch up" with all the input that it gets.
+#
+# To automatically generate such scripts during recording, use tt-record with
+# the -f parameter. This will generate fast scripts.
+#
+# == Integration with Test Management Tools
+#
+# If you want to integrate tuitest with test management tools, you can specify
+# an (optional) XML file that contains the test run results. The format of this
+# XML file is the same as produced by JUnit. These test run results can thus
+# be used by your favorite test result reporting tool. The integration has been
+# tested with the CI tool Hudson.
 
 
 require 'tuitest.so'
@@ -142,11 +153,12 @@ module Tuitest
 	# value of false indicates that the function ran into the
 	# specified timeout.
 	def Tuitest.wait_until_screen_contains_text(rx, timeout = 0)
+		no_timeout = (timeout == 0)
 		begin
 			return true if Tuitest.screen_contains_text(rx)
 			wait(1000)
-			timeout -= 1000 if timeout > 0
-		end while timeout >= 0
+			timeout -= 1000 if timeout
+		end while no_timeout or timeout > 0
 		false
 	end
 	
@@ -170,11 +182,12 @@ module Tuitest
 	# value of false indicates that the function ran into the
 	# specified timeout.
 	def Tuitest.wait_until_expected_text(row, col, expected_text, timeout = 0)
+		no_timeout = (timeout == 0)
 		begin
 			return true if Tuitest.gettext(row, col, expected_text.length) == expected_text
 			wait(1000)
-			timeout -= 1000 if timeout > 0
-		end while timeout >= 0
+			timeout -= 1000 if timeout
+		end while no_timeout or timeout > 0
 		false
 	end
 
@@ -238,10 +251,11 @@ module Tuitest
 		end
 
 		def write_xmlfile(file)
+			return if not file
 			File.open(file, "w+") do |f|
 				f << "<testsuite name='#{$0}' failures='#{@errcount}' errors='#{@warncount}' tests='#{@verifications.size}'>\n"
 				@verifications.each_index do |i|
-					f << "<testcase name='verification#{i+1}' time='0.0' classname='verification#{i+1}'>"
+					f << "<testcase name='#{$0}.verification#{i+1}' time='0.0' classname='#{$0}.verification#{i+1}'>"
 					if @verifications[i][0] == :error then
 						f << "<failure><![CDATA[#{@verifications[i][1]}]]></failure>"
 					elsif @verifications[i][1] == :warn then
