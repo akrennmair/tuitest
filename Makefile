@@ -23,7 +23,7 @@ $(TARGET): $(RECORDOBJS)
 
 $(RUBYMOD): $(RUBYMODOBJS)
 	cd swig && swig -ruby tuitest.i && ruby extconf.rb
-	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) -lncurses -lutil"
+	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) $(LIBS)"
 
 %.o: %.c
 	$(CC) -o $@ $(CFLAGS) -c $<
@@ -33,8 +33,11 @@ install:
 	install -m 755 tt-record $(DESTDIR)$(prefix)/bin
 	$(MAKE) -C swig DESTDIR=$(DESTDIR) prefix=$(prefix) sitedir='$(DESTDIR)$(prefix)/lib/ruby' install
 
-clean:
+distclean clean:
 	$(MAKE) -C swig clean
 	$(RM) $(TARGET) $(RECORDOBJS) $(RUBYMOD) $(RUBYMODOBJS) swig/tuitest_wrap.c swig/Makefile
 
-.PHONY: clean all
+doc:
+	rdoc
+
+.PHONY: distclean clean all doc
