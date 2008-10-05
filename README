@@ -1,0 +1,27 @@
+README
+=======
+tuitest is a tool to create an run automated tests of text user interfaces.
+It is meant as a complement to the widespread use of unit tests, and uses
+concepts known from GUI testing tools with the difference that it applies
+them specifically to text- and terminal-based user interfaces.
+
+Installation
+------------
+To build and install tuitest, simply run "make" and "make install".
+
+Build Dependencies:
+- ncurses (tested with 5.6)
+- Ruby 1.8 development files
+
+Documentation
+-------------
+To generate the documentation, run "make doc". Please note that you need to
+have rdoc installed in order to do that.
+
+Contact
+-------
+For feedback, don't hesitate to contact Andreas Krennmair <ak@synflood.at>.
+
+License
+-------
+For license information please see the file LICENSE.
