@@ -34,8 +34,9 @@ install:
 	$(MAKE) -C swig DESTDIR=$(DESTDIR) prefix=$(prefix) sitedir='$(DESTDIR)$(prefix)/lib/ruby' install
 
 distclean clean:
-	$(MAKE) -C swig clean
+	test -f swig/Makefile && $(MAKE) -C swig clean
 	$(RM) $(TARGET) $(RECORDOBJS) $(RUBYMOD) $(RUBYMODOBJS) swig/tuitest_wrap.c swig/Makefile
+	$(RM) -r doc
 
 doc:
 	rdoc
