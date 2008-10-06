@@ -1,0 +1,46 @@
+tt-record(1)
+============
+
+Name
+----
+tt-record - run automated tests of text user interfaces
+
+Synopsis
+--------
+tt-record [-f] [-x] <script> <command>
+
+Introduction
+------------
+
+tuitest is a tool to create an run automated tests of text user interfaces.  It
+is meant as a complement to the widespread use of unit tests, and uses concepts
+known from GUI testing tools with the difference that it applies them
+specifically to text- and terminal-based user interfaces.
+
+tt-record is the binary to run a console tool (being the 'command' in the
+command line) and generate a ruby script (being 'script') which can be used to
+replay the recorded session.
+
+Options and environment variables
+---------------------------------
+
+*-f*::
+    Enable fast mode. Do not respect exact timings but execute it as fast as
+    possible.
+
+*-x*::
+    Provide a junit compatible XML file (RESULT-$script.xml) when running the recorded session.
+    The XML file can then be used in tools like for example hudson.
+
+Usage examples
+---------------
+
+  % tt-record output.rb vim
+
+Run the console editor Vim and save the unit testing script as output.rb.
+Then execute 'ruby ./output.rb' to replay the recorded session.
+
+Author
+------
+Author of tt-record and tuitest is Andreas Krennmair <ak@synflood.at>.
+Author of this manpage is Michael Prokop <mika@grml.org>.

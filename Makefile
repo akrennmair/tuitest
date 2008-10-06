@@ -33,12 +33,16 @@ install:
 	install -m 755 tt-record $(DESTDIR)$(prefix)/bin
 	$(MAKE) -C swig DESTDIR=$(DESTDIR) prefix=$(prefix) sitedir='$(DESTDIR)$(prefix)/lib/ruby' install
 
-distclean clean:
+distclean clean: doc-clean
 	test -f swig/Makefile && $(MAKE) -C swig clean
 	$(RM) $(TARGET) $(RECORDOBJS) $(RUBYMOD) $(RUBYMODOBJS) swig/tuitest_wrap.c swig/Makefile
+
+doc-clean:
 	$(RM) -r doc
+	$(RM) tt-record.1 tt-record.1.xml
 
 doc:
 	rdoc
+	a2x -f manpage tt-record.1.txt
 
 .PHONY: distclean clean all doc
