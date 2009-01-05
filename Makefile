@@ -1,7 +1,13 @@
 CC=gcc
 CFLAGS=-g -fPIC -Wall -Wextra
 LDFLAGS=
-LIBS=-lutil -lncurses
+LIBS=-lncurses
+
+ifeq ($(shell uname -s),Darwin)
+CFLAGS+=-D_OSX
+else
+LIBS+=-lutil
+endif
 
 DESTDIR=
 prefix=/usr/local
@@ -23,7 +29,7 @@ $(TARGET): $(RECORDOBJS)
 
 $(RUBYMOD): $(RUBYMODOBJS)
 	cd swig && swig -ruby tuitest.i && ruby extconf.rb
-	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) $(LIBS)"
+	$(MAKE) -C swig clean && $(MAKE) -C swig LIBS+="$(patsubst %,../%,$(RUBYMODOBJS)) $(LIBS) -lruby"
 
 %.o: %.c
 	$(CC) -o $@ $(CFLAGS) -c $<
